@@ -1,0 +1,111 @@
+import type { Agent, Domain, IQDomain } from '../types/sportsiq';
+
+type Seed = [name: string, iq: Domain, task: string, data: string, policies: string, action: string, outcome: string,
+  latency: number, cost: number, tools: string[], reasoning: string, recommendation: string, memory: string];
+
+const seeds: Seed[] = [
+  // FanIQ
+  ['Engagement Monitor Agent', 'FanIQ', 'Detect disengagement', 'APP + GAME', 'N/A', 'Signal FanIQ', 'Detected', 182, 0.003,
+    ['Eventhouse KQL query', 'Game-state lookup'], 'App interaction fell below segment baseline for 428 consented fans during a game pause.',
+    'Escalate cohort to Offer Generation Agent', 'Disengagement pattern for pause windows recorded for the cohort.'],
+  ['Fan Context Agent', 'FanIQ', 'Assemble fan context', 'Fan + CRM + POS', 'Consent', 'Context enriched', 'Completed', 214, 0.004,
+    ['Fabric Data Agent', 'Ontology resolver'], 'Merged purchase history, loyalty tier and proximity to concessions into a single fan context.',
+    'Return enriched cohort context', 'Fan journey state refreshed.'],
+  ['Offer Generation Agent', 'FanIQ', 'Generate contextual offer', 'Fan + Offer catalog', '2 policies', 'Offer drafted', 'Completed', 268, 0.006,
+    ['Foundry model call', 'Offer catalog'], 'Selected the offer with the highest historical redemption for this segment in this game phase.',
+    'Contextual concession offer', 'Offer variant and cohort recorded.'],
+  ['Policy & Approval Agent', 'FanIQ', 'Evaluate offer', 'Fan + Offer + Policy', '5 policies', 'Approved', 'Completed', 241, 0.004,
+    ['Policy engine', 'Consent registry'], 'Checked consent, fatigue, budget, brand and game timing; all passed.',
+    'Approve offer for delivery', 'Approval and policy snapshot recorded.'],
+  ['Outcome Learning Agent', 'FanIQ', 'Learn from redemptions', 'POS + Offer log', 'N/A', 'Memory write', 'Learned', 305, 0.005,
+    ['Eventhouse KQL query', 'Memory writer'], 'Compared redemption against control cohort and updated segment response priors.',
+    'Update fan response memory', 'Segment response to pause-window offers updated.'],
+  // VenueIQ
+  ['Crowd Intelligence Agent', 'VenueIQ', 'Monitor crowd density', 'Sensors + Wi-Fi', 'N/A', 'Signal VenueIQ', 'Detected', 154, 0.002,
+    ['Eventstream subscription', 'Zone density model'], 'Arrival density at Gate 5 rising faster than the historical entry curve.',
+    'Flag Gate 5 as trending congested', 'Entry pattern for this game profile recorded.'],
+  ['Queue Optimization Agent', 'VenueIQ', 'Predict & reduce queues', 'POS + Sensors', '3 policies', 'Wayfinding adjusted', 'Completed', 276, 0.005,
+    ['Queue forecast model', 'Wayfinding API'], 'Forecast shows Gate 5 queue exceeding threshold in 6 minutes without intervention.',
+    'Redirect arriving fans to Gate 3', 'Queue response to wayfinding change recorded.'],
+  ['Staffing Agent', 'VenueIQ', 'Rebalance staffing', 'Roster + Sensors', 'Human approval', 'Staff request sent', 'Pending approval', 330, 0.006,
+    ['Workforce system', 'Teams notification'], 'Gate 5 is 3 staff under target while Gate 1 has slack.',
+    'Move 2 staff from Gate 1 to Gate 5', 'Staffing change and queue effect recorded.'],
+  ['Concession Optimization Agent', 'VenueIQ', 'Balance concession demand', 'POS + Zone load', '2 policies', 'Demand redirected', 'Completed', 259, 0.005,
+    ['POS API', 'Mobile-order routing'], 'Food Court is under capacity while Main Concourse carries the bulk of demand.',
+    'Route mobile orders to Food Court', 'Demand-shift response recorded.'],
+  ['Premium Experience Agent', 'VenueIQ', 'Protect premium service', 'Lounge + CRM', '1 policy', 'Host alerted', 'Completed', 198, 0.003,
+    ['Hospitality system', 'CRM lookup'], 'Premium Lounge service response drifted above SLA for two parties.',
+    'Alert host team with guest preferences', 'Premium service interaction recorded.'],
+  ['Safety & Policy Agent', 'VenueIQ', 'Validate safety limits', 'Sensors + Safety rules', '4 policies', 'Cleared', 'Completed', 120, 0.002,
+    ['Safety rule set', 'Capacity monitor'], 'Verified that proposed redirects keep every zone within safe capacity.',
+    'Clear redirect plan', 'Capacity check logged with decision.'],
+  // SponsorIQ
+  ['Asset Intelligence Agent', 'SponsorIQ', 'Find unused inventory', 'Contracts + Inventory', 'Sponsor rights', 'Signal SponsorIQ', 'Detected', 201, 0.004,
+    ['Sponsorship ontology', 'Inventory API'], 'TrueNorth Auto has 6 contracted assets not yet activated this event.',
+    'Surface unused assets', 'Inventory utilization snapshot recorded.'],
+  ['Audience Matching Agent', 'SponsorIQ', 'Match audience to campaign', 'Fan + Campaign', 'Consent', 'Audience matched', 'Completed', 247, 0.005,
+    ['Fabric Data Agent', 'Foundry model call'], 'Matched 1,940 high-affinity fans to the under-indexing campaign.',
+    'Target high-affinity segment', 'Audience-campaign match recorded.'],
+  ['Activation Agent', 'SponsorIQ', 'Activate approved placement', 'Inventory + Game state', '3 policies', 'Placement activated', 'Completed', 289, 0.006,
+    ['Digital signage API', 'MLSE One placement API'], 'Next eligible window opens at the next stoppage; placement is contract-approved.',
+    'Activate approved digital placement', 'Activation timing and result recorded.'],
+  ['Attribution Agent', 'SponsorIQ', 'Attribute outcomes', 'Engagement + POS', 'N/A', 'Attribution updated', 'Completed', 342, 0.007,
+    ['Eventhouse KQL query', 'Attribution model'], 'Linked sponsor exposures to downstream conversions using time-decay attribution.',
+    'Update attributed value', 'Proof points added to sponsor memory.'],
+  ['Sponsor Reporting Agent', 'SponsorIQ', 'Draft sponsor report', 'Campaign memory', 'Brand', 'Report drafted', 'Completed', 410, 0.009,
+    ['Foundry model call', 'Report template'], 'Compiled exposure, engagement and conversion proof points into a renewal narrative.',
+    'Publish sponsor summary', 'Report snapshot recorded.'],
+  // ContentIQ
+  ['Moment Detection Agent', 'ContentIQ', 'Detect key moments', 'Game data + Video', 'N/A', 'Signal ContentIQ', 'Detected', 143, 0.002,
+    ['Game data feed', 'Video index'], 'Goal event with high game significance detected in period 2.',
+    'Flag moment for content creation', 'Moment type and significance recorded.'],
+  ['Audience Agent', 'ContentIQ', 'Select audiences', 'Fan + Content prefs', 'Consent', 'Audience selected', 'Completed', 231, 0.004,
+    ['Fabric Data Agent', 'Preference store'], 'Selected eligible fans whose preferences favour short-form highlights.',
+    'Target consented digital fans', 'Audience selection recorded.'],
+  ['Content Recommendation Agent', 'ContentIQ', 'Recommend formats', 'Moment + Audience', '2 policies', 'Formats recommended', 'Completed', 262, 0.005,
+    ['Foundry model call', 'Content catalog'], 'Highlight clip and push notification produce the strongest historical engagement for goals.',
+    'Highlight clip + push notification', 'Format performance recorded.'],
+  ['Sponsor Alignment Agent', 'ContentIQ', 'Check sponsor rights', 'Contracts + Moment', 'Sponsor rights', 'Rights confirmed', 'Completed', 188, 0.003,
+    ['Sponsorship ontology', 'Rights registry'], 'Replay segment rights belong to NorthStar Bank; branded variation is permitted.',
+    'Add sponsor-branded variation', 'Rights check recorded.'],
+  ['Distribution Agent', 'ContentIQ', 'Distribute content', 'Channels + Audience', '3 policies', 'Content distributed', 'Completed', 301, 0.005,
+    ['MLSE One push API', 'Social scheduler'], 'Scheduled distribution across eligible channels within the moment window.',
+    'Distribute across approved channels', 'Distribution outcome recorded.'],
+  // AnalyticsIQ
+  ['Insight Agent', 'AnalyticsIQ', 'Explain what changed', 'Eventhouse + Memory', 'N/A', 'Insight published', 'Completed', 520, 0.012,
+    ['Eventhouse KQL query', 'Foundry model call'], 'Concession demand rose during second-period pauses; coordinated actions captured the lift.',
+    'Publish "What changed tonight?"', 'Insight stored with evidence.'],
+  ['Anomaly Detection Agent', 'AnalyticsIQ', 'Detect anomalies', 'Telemetry', 'N/A', 'Alert raised', 'Detected', 176, 0.003,
+    ['Eventhouse KQL query', 'Anomaly model'], 'Gate 5 wait time deviated 2.4σ from expected.',
+    'Raise anomaly to SportsIQ', 'Anomaly baseline updated.'],
+  ['Executive Narrative Agent', 'AnalyticsIQ', 'Answer executive questions', 'Memory + Metrics', 'Brand', 'Answer generated', 'Completed', 640, 0.015,
+    ['Fabric Data Agent', 'Foundry model call'], 'Grounded the answer in event-level facts and cited decisions.',
+    'Respond to Ask SportsIQ', 'Question and answer recorded.'],
+  // Brain
+  ['SportsIQ Orchestrator', 'SportsIQ Brain', 'Coordinate IQs', 'All signals + Memory', 'All policies', 'Plan composed', 'Completed', 310, 0.008,
+    ['Workflow engine', 'Shared context store'], 'Combined FanIQ, VenueIQ, SponsorIQ and ContentIQ signals into one cross-domain plan.',
+    'Execute coordinated activation', 'Cross-domain plan and outcome recorded.'],
+  ['Governance Agent', 'SportsIQ Brain', 'Enforce policy', 'Policy set', '9 policies', 'Decision gated', 'Completed', 150, 0.002,
+    ['Policy engine', 'Approval workflow'], 'Evaluated every proposed action against consent, brand, budget, fatigue, safety, timing and rights.',
+    'Approve, block or escalate', 'Policy snapshot stored with each decision.'],
+  ['Memory Curator Agent', 'SportsIQ Brain', 'Curate memory', 'Outcomes + Memory', 'Retention', 'Memory written', 'Completed', 225, 0.004,
+    ['Memory writer', 'OneLake'], 'Converted observed outcomes into durable, governed memories for future reasoning.',
+    'Write governed memory', 'Memory index updated.'],
+];
+
+export const agents: Agent[] = seeds.map((s, i) => ({
+  id: `agent-${i + 1}`, name: s[0], iq: s[1], task: s[2], data: s[3], policies: s[4], action: s[5], outcome: s[6],
+  latency: s[7], cost: s[8], tools: s[9], reasoning: s[10], recommendation: s[11], memory: s[12],
+}));
+
+export const iqDomains: IQDomain[] = [
+  { id: 'FanIQ', page: 'faniq', color: '#e4002b', primaryKpi: 'Revenue per fan', purpose: 'Fan intelligence, personalization, loyalty and engagement', agents: [] },
+  { id: 'VenueIQ', page: 'venueiq', color: '#2f7bff', primaryKpi: 'Avg entry wait time', purpose: 'Venue activity into operational intelligence', agents: [] },
+  { id: 'SponsorIQ', page: 'sponsoriq', color: '#f5a524', primaryKpi: 'Sponsor asset utilization', purpose: 'Measurable, intelligent sponsor activation', agents: [] },
+  { id: 'ContentIQ', page: 'contentiq', color: '#a855f7', primaryKpi: 'Content engagement rate', purpose: 'Decide what content to create and distribute', agents: [] },
+  { id: 'AnalyticsIQ', page: 'analyticsiq', color: '#19c3a6', primaryKpi: 'Time from signal to action', purpose: 'Executive intelligence from SportsIQ activity', agents: [] },
+  { id: 'SportsIQ Brain', page: 'brain', color: '#ffffff', primaryKpi: 'Governed decisions', purpose: 'Parent organizational brain', agents: [] },
+].map((d) => ({ ...d, agents: agents.filter((a) => a.iq === d.id).map((a) => a.name) })) as IQDomain[];
+
+export const domainColor = (d: Domain) => iqDomains.find((x) => x.id === d)?.color ?? '#fff';
+export const iqPage = (d: Domain) => iqDomains.find((x) => x.id === d)!.page;
