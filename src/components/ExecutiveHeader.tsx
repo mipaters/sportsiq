@@ -7,7 +7,7 @@ export function ExecutiveHeader({ state, walkthrough, onToggleWalkthrough }: { s
   const g = state.game;
   return (
     <header className="topbar">
-      <span className="live-pill"><span className={`dot ${state.running ? '' : 'paused'}`} />LIVE</span>
+      <span className="live-pill"><span className={`dot ${state.running ? '' : 'paused'}`} />{state.running ? 'LIVE' : 'PAUSED'}</span>
       <span className="matchup">{g.home} <span>vs</span> {g.away}</span>
       <span style={{ color: 'var(--muted)' }}>{g.venue}</span>
       <span className="scorebug">
@@ -17,8 +17,8 @@ export function ExecutiveHeader({ state, walkthrough, onToggleWalkthrough }: { s
       </span>
       <span className="spacer" />
       {state.running
-        ? <button className="btn sm" onClick={() => engine.pause()}>⏸ Pause</button>
-        : <button className="btn sm" onClick={() => engine.resume()}>▶ Resume</button>}
+        ? <button className="btn sm" onClick={() => engine.pause()}>        ■ Stop Live Feed</button>
+                : <button className="btn sm blue" onClick={() => engine.resume()}>▶ Start Live Feed</button>}
       <button className="btn sm" onClick={() => engine.reset()}>↺ Reset</button>
       <button className="btn sm blue" onClick={() => engine.triggerScenario()} disabled={state.scenario.active}>⚡ Trigger Scenario</button>
       <button className={`btn red ${walkthrough ? 'on' : ''}`} onClick={onToggleWalkthrough}>{walkthrough ? '■ END WALKTHROUGH' : '▶ EXECUTIVE WALKTHROUGH'}</button>

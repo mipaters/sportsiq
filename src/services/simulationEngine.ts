@@ -20,7 +20,7 @@ class SimulationEngine {
   constructor() {
     // Warm the stream so the first screen is never empty.
     for (let i = 0; i < 6; i++) this.step(true);
-    this.start();
+    this.state = { ...this.state, running: false };
   }
 
   subscribe = (l: () => void) => { this.listeners.add(l); return () => { this.listeners.delete(l); }; };
@@ -41,7 +41,7 @@ class SimulationEngine {
     this.scenarioTick = 0;
     this.state = createInitialState();
     for (let i = 0; i < 6; i++) this.step(true);
-    this.start();
+    this.state = { ...this.state, running: false };
     this.emit();
   }
 
