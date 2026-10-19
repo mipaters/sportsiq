@@ -249,7 +249,7 @@ export const walkthrough: WalkthroughStep[] = [
   {
     n: 5, label: 'Seat upgrade', page: 'faniq', action: 'seat', title: 'A fan gets an offer to move closer to the action',
     watch: 'Scroll to "Live FanIQ decisions": the seat upgrade offer was just generated. Open it to see the full trace.',
-    what: 'Sam, a Gold+ loyalty member, is in an upper-level seat. Ticketing shows 64 unsold lower-bowl seats near the action. FanIQ sends Sam a one-tap offer in MLSE One: "Move closer for the second period for a fair upgrade price." The seat is held for 5 minutes. Sam accepts and walks down.',
+    what: 'Mike, a Gold+ loyalty member, is in an upper-level seat. Ticketing shows 64 unsold lower-bowl seats near the action. FanIQ sends Mike a one-tap offer in MLSE One: "Move closer for the second period for a fair upgrade price." The seat is held for 5 minutes. Mike accepts and walks down.',
     how: ['SportsIQ reads live seat inventory and finds seats that would otherwise go unsold.', 'FanIQ matches the unused seats to opted-in, engaged fans who have not been over-messaged.', 'Policy checks consent, offer fatigue, seat inventory, budget and game timing, then the offer is delivered and the seat is held.', 'The result (accepted or declined) is written back to memory.'],
     value: ['New ticket revenue from inventory that would otherwise be empty.', 'A memorable moment for the fan, which supports loyalty and renewals.', 'Fuller lower bowl on TV and in the building.'],
   },
