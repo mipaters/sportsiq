@@ -6,6 +6,7 @@ export function runStepAction(n: number) {
   const a = walkthrough[n].action;
   if (a === 'start' && !engine.getState().running) engine.resume();
   if (a === 'scenario') engine.triggerScenario();
+  if (a === 'seat') engine.injectDecision('Deliver seat upgrade offer');
 }
 
 export function ExecutiveWalkthrough({ step, setStep, onNavigate, onClose }: {

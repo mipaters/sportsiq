@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { AgentDecision, SimState } from '../types/sportsiq';
-import { masterScenario, scenarioTemplate } from '../data/scenarios';
+import { decisionTemplates, masterScenario, scenarioTemplate } from '../data/scenarios';
 import { createDecision } from './agentEngine';
 import {
   SCENARIO_END, SCENARIO_STEP_AT, SCENARIO_TARGET, advanceDecision, createInitialState, driftLive, driftZones,
@@ -42,6 +42,17 @@ class SimulationEngine {
     this.state = createInitialState();
     for (let i = 0; i < 6; i++) this.step(true);
     this.state = { ...this.state, running: false };
+    this.emit();
+  }
+
+  injectDecision(match: string) {
+    const t = decisionTemplates.find((x) => x.action.type === match);
+    if (!t) return;
+    const s = structuredClone(this.state);
+    s.decisions.unshift(createDecision(t, wallTime(s.tick)));
+    s.stats[t.domain].signals += 1;
+    this.state = s;
+    if (!s.running) this.resume();
     this.emit();
   }
 

@@ -8,6 +8,7 @@ export const policies: Policy[] = [
   { id: 'timing', name: 'Game timing', description: 'Action does not interrupt live play.' },
   { id: 'rights', name: 'Sponsor rights', description: 'Sponsor rights and contracts permit the activation.' },
   { id: 'capacity', name: 'Venue capacity', description: 'Action keeps zones within safe capacity.' },
+  { id: 'inventory', name: 'Seat inventory', description: 'Seats are unsold, unheld and approved for release.' },
   { id: 'safety', name: 'Safety', description: 'Action does not compromise venue safety.' },
   { id: 'human', name: 'Human approval', description: 'Required for staffing or high-impact changes.' },
 ];
@@ -39,6 +40,19 @@ export const decisionTemplates: DecisionTemplate[] = [
     action: { type: 'Deliver offer', channel: 'MLSE One', description: 'Push loyalty bonus to 212 members.', requiresHuman: false },
     outcome: { label: 'Bonus redeemed', delta: { revenue: 1100, engagement: 1 }, text: '41 members redeemed loyalty bonus.' },
     memoryArea: 'Fan', memory: 'Season Ticket Members respond to point bonuses more than discounts.',
+  },
+  {
+    domain: 'FanIQ', agent: 'Offer Generation Agent',
+    signal: 'Unsold lower-bowl seats remain 12 minutes before the second period; upper-level fans are in the building.',
+    context: 'Seat inventory shows 64 unsold seats near the action. 90 opted-in fans (Gold+ loyalty, seats in upper level) are eligible; none received an upgrade offer this month.',
+    reasoning: 'Releasing unused premium inventory costs nothing to the event and gives fans a better view; a paid upgrade at a fair price converts best for engaged fans.',
+    dataSources: ['Ticketing / Seat Inventory', 'Loyalty', 'CRM', 'Mobile App'],
+    policyIds: ['consent', 'fatigue', 'inventory', 'budget', 'timing'],
+    recommendation: 'Offer eligible fans a seat upgrade to an unsold seat closer to the action, delivered in MLSE One.',
+    expectedOutcome: 'Incremental ticket revenue from inventory that would otherwise go unused, plus a better fan experience.',
+    action: { type: 'Deliver seat upgrade offer', channel: 'MLSE One', description: 'Send a one-tap upgrade offer to 90 fans and hold the seats for 5 minutes.', requiresHuman: false },
+    outcome: { label: 'Upgrades accepted', delta: { revenue: 1900, engagement: 2 }, text: '23 fans accepted an upgrade to unsold lower-bowl seats.' },
+    memoryArea: 'Fan', memory: 'Upper-level Gold+ members accept seat upgrades at high rates when offered before the second period.',
   },
   {
     domain: 'VenueIQ', agent: 'Crowd Intelligence Agent',
@@ -198,7 +212,7 @@ export const masterScenario = {
 };
 
 export type WalkthroughStep = {
-  n: number; label: string; page: PageId; title: string; action?: 'start' | 'scenario';
+  n: number; label: string; page: PageId; title: string; action?: 'start' | 'scenario' | 'seat';
   watch: string; what: string; how: string[]; value: string[];
 };
 
@@ -233,35 +247,42 @@ export const walkthrough: WalkthroughStep[] = [
     value: ['Higher relevance and redemption, fewer irrelevant messages.', 'Respect for fan consent is built in, protecting the brand and the relationship.'],
   },
   {
-    n: 5, label: 'Reason: Venue', page: 'venueiq', title: 'VenueIQ: send demand where there is capacity',
+    n: 5, label: 'Seat upgrade', page: 'faniq', action: 'seat', title: 'A fan gets an offer to move closer to the action',
+    watch: 'Scroll to "Live FanIQ decisions": the seat upgrade offer was just generated. Open it to see the full trace.',
+    what: 'Sam, a Gold+ loyalty member, is in an upper-level seat. Ticketing shows 64 unsold lower-bowl seats near the action. FanIQ sends Sam a one-tap offer in MLSE One: "Move closer for the second period for a fair upgrade price." The seat is held for 5 minutes. Sam accepts and walks down.',
+    how: ['SportsIQ reads live seat inventory and finds seats that would otherwise go unsold.', 'FanIQ matches the unused seats to opted-in, engaged fans who have not been over-messaged.', 'Policy checks consent, offer fatigue, seat inventory, budget and game timing, then the offer is delivered and the seat is held.', 'The result (accepted or declined) is written back to memory.'],
+    value: ['New ticket revenue from inventory that would otherwise be empty.', 'A memorable moment for the fan, which supports loyalty and renewals.', 'Fuller lower bowl on TV and in the building.'],
+  },
+  {
+    n: 6, label: 'Reason: Venue', page: 'venueiq', title: 'VenueIQ: send demand where there is capacity',
     watch: 'Zone queue times and capacity, the places the plan redirects demand to.',
     what: 'Concession lines near the busiest sections are long while two other zones have spare capacity. VenueIQ steers fans toward them.',
     how: ['Live zone metrics (synthetic sensors and POS) show where capacity is idle.', 'The plan routes offers toward lower-volume areas to flatten queues.'],
     value: ['Shorter lines improve the experience and let more fans buy.', 'Better use of staff and stock already in the building.'],
   },
   {
-    n: 6, label: 'Reason: Sponsor', page: 'sponsoriq', title: 'SponsorIQ: put unused sponsor inventory to work',
+    n: 7, label: 'Reason: Sponsor', page: 'sponsoriq', title: 'SponsorIQ: put unused sponsor inventory to work',
     watch: 'Sponsor inventory, rights and activation status.',
     what: 'A food sponsor has activation inventory that would otherwise go unused. SponsorIQ attaches it to the offer so the sponsor gets exposure and the fan gets value.',
     how: ['Inventory and contract rights are checked against the proposed activation.', 'The offer is sponsor-backed, so one message serves fan, venue and partner.'],
     value: ['Delivered sponsor value that can be shown in partner reporting.', 'Fewer duplicate promotions competing for the same fan.'],
   },
   {
-    n: 7, label: 'Govern & act', page: 'command', title: 'Policy approves, then the plan executes',
+    n: 8, label: 'Govern & act', page: 'command', title: 'Policy approves, then the plan executes',
     watch: 'Return to the Command Center: policy checks, the Orchestrator decision and the live results.',
     what: 'Before any message goes out, the Policy Agent checks consent, offer fatigue, sponsor rights, budget, game timing and venue capacity. All six pass, so the activation proceeds. If one had failed, it would be blocked or sent to a human.',
     how: ['Six explicit policy checks produce approved, review or blocked.', 'Approved actions flow to MLSE One and venue operations; results appear within seconds.', 'Click any decision to see its full SIGNAL to RESULT trace.'],
     value: ['Speed with control: automation that leadership can audit.', 'Synthetic result in this demo: offers sent, redemptions, incremental revenue and a shorter queue.'],
   },
   {
-    n: 8, label: 'Learn', page: 'memory', title: 'The outcome is written back to memory',
+    n: 9, label: 'Learn', page: 'memory', title: 'The outcome is written back to memory',
     watch: 'Organizational Memory: four new entries from this scenario.',
     what: 'Fan response, venue demand response, sponsor performance and campaign outcome are all recorded.',
     how: ['Outcomes are stored as structured memories, not lost in a spreadsheet.', 'Future reasoning reads these memories first.'],
     value: ['The next decision starts smarter than the last.', 'Institutional knowledge that survives staff changes and seasons.'],
   },
   {
-    n: 9, label: 'Business value', page: 'outcomes', title: 'What this could mean for Rogers Sports & MLSE',
+    n: 10, label: 'Business value', page: 'outcomes', title: 'What this could mean for Rogers Sports & MLSE',
     watch: 'Business Outcomes: an editable, illustrative scenario calculator and a potential measurement framework.',
     what: 'Repeat this one pause across a season, then across every stoppage, game and property. Use the inputs to model your own assumptions.',
     how: ['Adjust attendance, spend, events and conversion to see illustrative impact.', 'The KPI framework shows how real results would be measured against a baseline.'],

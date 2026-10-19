@@ -52,7 +52,7 @@ export default function App() {
         <main className="content">
           {!wt && page === 'command' && (
             <div className="wt-banner">
-              <div style={{ flex: 1 }}><b>New here? Take the Executive Walkthrough</b><br /><span>A 9-step guided story of one game-night moment: what SportsIQ does, how, and the value to Rogers Sports &amp; MLSE.</span></div>
+              <div style={{ flex: 1 }}><b>New here? Take the Executive Walkthrough</b><br /><span>A 10-step guided story of one game-night moment: what SportsIQ does, how, and the value to Rogers Sports &amp; MLSE.</span></div>
               <button className="btn red cta" onClick={toggleWt}>▶ START WALKTHROUGH</button>
             </div>
           )}
