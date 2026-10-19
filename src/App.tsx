@@ -3,7 +3,7 @@ import type { PageId } from './types/sportsiq';
 import { useSimulation } from './services/simulationEngine';
 import { Navigation } from './components/Navigation';
 import { ExecutiveHeader } from './components/ExecutiveHeader';
-import { ExecutiveWalkthrough } from './components/ExecutiveWalkthrough';
+import { ExecutiveWalkthrough, runStepAction } from './components/ExecutiveWalkthrough';
 import { walkthrough } from './data/scenarios';
 import { CommandCenter } from './pages/CommandCenter';
 import { SportsIQBrain } from './pages/SportsIQBrain';
@@ -25,7 +25,7 @@ export default function App() {
 
   const toggleWt = () => {
     if (wt) { setWt(false); return; }
-    setWtStep(0); setWt(true); setPage(walkthrough[0].page);
+    setWtStep(0); setWt(true); setPage(walkthrough[0].page); runStepAction(0);
   };
 
   const render = () => {
@@ -49,7 +49,15 @@ export default function App() {
       <Navigation page={page} onNavigate={setPage} />
       <div className="main">
         <ExecutiveHeader state={state} walkthrough={wt} onToggleWalkthrough={toggleWt} />
-        <main className="content">{render()}</main>
+        <main className="content">
+          {!wt && page === 'command' && (
+            <div className="wt-banner">
+              <div style={{ flex: 1 }}><b>New here? Take the Executive Walkthrough</b><br /><span>A 9-step guided story of one game-night moment: what SportsIQ does, how, and the value to Rogers Sports &amp; MLSE.</span></div>
+              <button className="btn red cta" onClick={toggleWt}>▶ START WALKTHROUGH</button>
+            </div>
+          )}
+          {render()}
+        </main>
       </div>
       {wt && <ExecutiveWalkthrough step={wtStep} setStep={setWtStep} onNavigate={setPage} onClose={() => setWt(false)} />}
     </div>

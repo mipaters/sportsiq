@@ -1,4 +1,4 @@
-import type { DecisionTemplate, Policy } from '../types/sportsiq';
+import type { DecisionTemplate, PageId, Policy } from '../types/sportsiq';
 
 export const policies: Policy[] = [
   { id: 'consent', name: 'Consent', description: 'Fan has granted consent for this channel and use.' },
@@ -197,11 +197,75 @@ export const masterScenario = {
   finalMessage: 'The next SportsIQ decision starts smarter than the last.',
 };
 
-export const walkthrough = [
-  { n: 1, label: 'Detect', text: 'SportsIQ observes live signals.', page: 'command' as const },
-  { n: 2, label: 'Understand', text: 'Agents combine current signals with organizational memory.', page: 'brain' as const },
-  { n: 3, label: 'Reason', text: 'Specialized IQs determine the best response.', page: 'faniq' as const },
-  { n: 4, label: 'Govern', text: 'Policies determine whether the response may proceed.', page: 'venueiq' as const },
-  { n: 5, label: 'Act', text: 'Approved actions move into operational or customer channels.', page: 'sponsoriq' as const },
-  { n: 6, label: 'Learn', text: 'Outcomes are written back to organizational memory.', page: 'outcomes' as const },
+export type WalkthroughStep = {
+  n: number; label: string; page: PageId; title: string; action?: 'start' | 'scenario';
+  watch: string; what: string; how: string[]; value: string[];
+};
+
+// Synthetic narrative: one second-period commercial pause, followed end to end.
+export const walkthrough: WalkthroughStep[] = [
+  {
+    n: 1, label: 'Set the scene', page: 'command', action: 'start', title: 'A live game night at the arena',
+    watch: 'The live feed starts: signals, agent decisions and the game clock begin moving.',
+    what: 'It is the second period of a home game. 19,000 fans are in the building and thousands more are watching and using the app. Today each team (ticketing, concessions, sponsorship, content) sees only its own slice and reacts after the moment has passed.',
+    how: ['SportsIQ listens to fan, venue, sponsor, content and game signals in one place.', 'Specialized agents (27 in this demo) work continuously inside five domains: FanIQ, VenueIQ, SponsorIQ, ContentIQ and AnalyticsIQ.', 'Every decision is explainable and passes policy before anything happens.'],
+    value: ['One shared view of the night across Rogers Sports & MLSE.', 'Decisions made in seconds, not after the post-game report.'],
+  },
+  {
+    n: 2, label: 'Detect', page: 'command', action: 'scenario', title: 'The game enters a commercial pause',
+    watch: 'The master scenario is triggered. Watch the scenario timeline and the live decision stream.',
+    what: 'The second-period stoppage starts. In 90 seconds fans will look at their phones, walk to concessions, or tune out. This is a short window where revenue and experience are both on the table.',
+    how: ['A game-state signal flags the commercial pause.', 'SportsIQ opens a single cross-domain opportunity instead of four separate ones.'],
+    value: ['Turns a routine stoppage into a coordinated opportunity.', 'Nobody has to notice it manually and call a meeting.'],
+  },
+  {
+    n: 3, label: 'Understand', page: 'brain', title: 'Four IQs bring their context to one brain',
+    watch: 'The SportsIQ Brain hub: every domain feeds, and draws from, shared intelligence and memory.',
+    what: 'FanIQ sees 428 eligible fans with reduced engagement. VenueIQ sees concession demand below capacity in two nearby zones. SponsorIQ sees an approved food sponsor with unused activation inventory. ContentIQ confirms the game moment allows promotion.',
+    how: ['Each IQ publishes what it knows to SportsIQ Brain.', 'The Brain joins the signals with organizational memory of what has worked before.'],
+    value: ['Cross-silo context that no single team has today.', 'Past learning reused instead of rediscovered every season.'],
+  },
+  {
+    n: 4, label: 'Reason: Fans', page: 'faniq', title: 'FanIQ: who should hear about this, and how',
+    watch: 'Fan segments, consent and offer-fatigue status. Try the simulate action.',
+    what: 'FanIQ picks the right fans: opted-in, not over-messaged, near the right concourse. It chooses the message and channel for each segment.',
+    how: ['Segments and propensity are combined with consent and recent-contact history.', 'Fans who are fatigued or have not opted in are excluded before anything is sent.'],
+    value: ['Higher relevance and redemption, fewer irrelevant messages.', 'Respect for fan consent is built in, protecting the brand and the relationship.'],
+  },
+  {
+    n: 5, label: 'Reason: Venue', page: 'venueiq', title: 'VenueIQ: send demand where there is capacity',
+    watch: 'Zone queue times and capacity, the places the plan redirects demand to.',
+    what: 'Concession lines near the busiest sections are long while two other zones have spare capacity. VenueIQ steers fans toward them.',
+    how: ['Live zone metrics (synthetic sensors and POS) show where capacity is idle.', 'The plan routes offers toward lower-volume areas to flatten queues.'],
+    value: ['Shorter lines improve the experience and let more fans buy.', 'Better use of staff and stock already in the building.'],
+  },
+  {
+    n: 6, label: 'Reason: Sponsor', page: 'sponsoriq', title: 'SponsorIQ: put unused sponsor inventory to work',
+    watch: 'Sponsor inventory, rights and activation status.',
+    what: 'A food sponsor has activation inventory that would otherwise go unused. SponsorIQ attaches it to the offer so the sponsor gets exposure and the fan gets value.',
+    how: ['Inventory and contract rights are checked against the proposed activation.', 'The offer is sponsor-backed, so one message serves fan, venue and partner.'],
+    value: ['Delivered sponsor value that can be shown in partner reporting.', 'Fewer duplicate promotions competing for the same fan.'],
+  },
+  {
+    n: 7, label: 'Govern & act', page: 'command', title: 'Policy approves, then the plan executes',
+    watch: 'Return to the Command Center: policy checks, the Orchestrator decision and the live results.',
+    what: 'Before any message goes out, the Policy Agent checks consent, offer fatigue, sponsor rights, budget, game timing and venue capacity. All six pass, so the activation proceeds. If one had failed, it would be blocked or sent to a human.',
+    how: ['Six explicit policy checks produce approved, review or blocked.', 'Approved actions flow to MLSE One and venue operations; results appear within seconds.', 'Click any decision to see its full SIGNAL to RESULT trace.'],
+    value: ['Speed with control: automation that leadership can audit.', 'Synthetic result in this demo: offers sent, redemptions, incremental revenue and a shorter queue.'],
+  },
+  {
+    n: 8, label: 'Learn', page: 'memory', title: 'The outcome is written back to memory',
+    watch: 'Organizational Memory: four new entries from this scenario.',
+    what: 'Fan response, venue demand response, sponsor performance and campaign outcome are all recorded.',
+    how: ['Outcomes are stored as structured memories, not lost in a spreadsheet.', 'Future reasoning reads these memories first.'],
+    value: ['The next decision starts smarter than the last.', 'Institutional knowledge that survives staff changes and seasons.'],
+  },
+  {
+    n: 9, label: 'Business value', page: 'outcomes', title: 'What this could mean for Rogers Sports & MLSE',
+    watch: 'Business Outcomes: an editable, illustrative scenario calculator and a potential measurement framework.',
+    what: 'Repeat this one pause across a season, then across every stoppage, game and property. Use the inputs to model your own assumptions.',
+    how: ['Adjust attendance, spend, events and conversion to see illustrative impact.', 'The KPI framework shows how real results would be measured against a baseline.'],
+    value: ['Incremental revenue, better fan experience, stronger sponsor outcomes and faster operations.', 'All figures here are synthetic and illustrative, not forecasts.'],
+  },
 ];
+

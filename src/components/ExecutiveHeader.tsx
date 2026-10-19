@@ -21,7 +21,7 @@ export function ExecutiveHeader({ state, walkthrough, onToggleWalkthrough }: { s
                 : <button className="btn sm blue" onClick={() => engine.resume()}>▶ Start Live Feed</button>}
       <button className="btn sm" onClick={() => engine.reset()}>↺ Reset</button>
       <button className="btn sm blue" onClick={() => engine.triggerScenario()} disabled={state.scenario.active}>⚡ Trigger Scenario</button>
-      <button className={`btn red ${walkthrough ? 'on' : ''}`} onClick={onToggleWalkthrough}>{walkthrough ? '■ END WALKTHROUGH' : '▶ EXECUTIVE WALKTHROUGH'}</button>
+      <button className={`btn red ${walkthrough ? 'on' : 'cta'}`} onClick={onToggleWalkthrough}>{walkthrough ? '■ END WALKTHROUGH' : '▶ START EXECUTIVE WALKTHROUGH'}</button>
     </header>
   );
 }
